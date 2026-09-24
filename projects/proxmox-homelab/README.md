@@ -38,6 +38,8 @@ The environment currently spans two physical locations connected through Tailsca
 
 On the NAB9, Proxmox hosts both virtual machines and LXC containers. Docker runs inside a dedicated virtual machine, providing a separate environment for Compose-based applications.
 
+A 1 TB SSD connected to the NAB9 via USB is used as the destination for scheduled Proxmox backups. This is a local backup arrangement, separate from the planned Proxmox Backup Server deployment.
+
 This is an incremental transition, not a completed replacement of the original host. Both systems remain relevant while workloads and storage are moved.
 
 For the separately documented network architecture and fallback connectivity, see the [Multi-Site Tailscale project](../multi-site-tailscale/README.md).
