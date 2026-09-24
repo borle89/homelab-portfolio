@@ -60,7 +60,7 @@ The Fire TV Stick required an additional application to remain awake and availab
 
 ---
 
-### 03 · Identity & Secure Access
+### 03 · [Identity & Secure Access](projects/identity-secure-access/README.md)
 
 Deployed Authentik and Pangolin in separate virtualized environments and configured Authentik for use with Pangolin.
 
