@@ -49,9 +49,7 @@ Authentik also runs on the NAB9 and handles authentication for Pangolin.
 | Tailscale | Private connection between the two homelab locations |
 | Cloudflare | Part of the public domain access and certificate-validation setup |
 
-This is a transitional architecture. Public port forwarding remains at the original site; the NAB9 site does not currently use the planned direct public port forwarding.
-
-Pangolin is not yet configured to publish and protect my other homelab services.
+This is a transitional architecture. Pangolin is not yet configured to publish and protect my other homelab services.
 
 For the wider two-site network design and alternative access paths, see the [Multi-Site Tailscale project](../multi-site-tailscale/README.md).
 
