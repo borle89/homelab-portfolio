@@ -29,6 +29,8 @@ The NAB9 currently has 32 GB of RAM. An upgrade to 64 GB is a future considerati
 
 The environment currently spans two physical locations connected through Tailscale.
 
+**Network addressing lesson:** Both locations initially used the same private IP subnet because their home routers had the same default network configuration. This created overlapping address ranges when connecting the sites through Tailscale. I changed the subnet at one location so that each site has a distinct address range and cross-site routing works without this conflict.
+
 | Component | Current role |
 |---|---|
 | Minisforum NAB9 | New primary Proxmox host and destination for selected workloads |
