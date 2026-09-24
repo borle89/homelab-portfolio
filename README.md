@@ -29,7 +29,7 @@ I use this environment to learn how infrastructure components work together, inv
 
 ## Featured Projects
 
-### 01 · Proxmox Homelab & Service Migration
+### 01 · [Proxmox Homelab & Service Migration](projects/proxmox-homelab/README.md)
 
 Built Proxmox environments on a laptop and later on a dedicated Minisforum server. Created and configured virtual machines and LXC containers, allocated resources, configured storage and set up scheduled backups.
 
@@ -39,7 +39,7 @@ The transition between the two systems is ongoing. It includes preparing service
 
 ---
 
-### 02 · Multi-Site Networking with Tailscale
+### 02 · [Multi-Site Networking with Tailscale](projects/multi-site-tailscale/README.md)
 
 Connected two local networks approximately 50 km apart using Tailscale subnet routers.
 
