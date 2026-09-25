@@ -40,7 +40,7 @@ The environment currently spans two physical locations connected through Tailsca
 
 On the NAB9, Proxmox hosts both virtual machines and LXC containers. Docker runs inside a dedicated virtual machine, providing a separate environment for Compose-based applications.
 
-A 1 TB SSD connected to the NAB9 via USB is used as the destination for scheduled Proxmox backups. This is a local backup arrangement, separate from the planned Proxmox Backup Server deployment.
+A 1 TB SSD connected to the NAB9 via USB is used as the destination for scheduled Proxmox backups. This is a local backup arrangement, separate from the planned Proxmox Backup Server deployment. A restore has not yet been tested.
 
 This is an incremental transition, not a completed replacement of the original host. Both systems remain relevant while workloads and storage are moved.
 
@@ -102,7 +102,9 @@ The original HP Omen environment remains available while the new host is built a
 
 Jellyfin has been installed on the NAB9 and tested against media storage still located at the original site. The connection uses the existing Tailscale link and an SMB share.
 
-Movie playback was successfully tested. This demonstrates a working cross-site access path for that scenario, but it does not establish that every Jellyfin feature, media format, or failure scenario has been validated.
+Movie playback was successfully tested. In one test, I played a 4K film at a selected playback resolution of 720p. Jellyfin reported a transcoding speed of 188 fps during that session. This is a transcoding throughput reading, not the playback frame rate; the figure alone does not confirm whether Intel hardware acceleration was active.
+
+This demonstrates a working cross-site access path for that scenario, but it does not establish that every Jellyfin feature, media format, or failure scenario has been validated.
 
 The SMB connection is a transitional arrangement, not the intended permanent media-storage architecture.
 
