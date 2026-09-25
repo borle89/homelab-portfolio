@@ -1,8 +1,10 @@
 # Multi-Site Networking with Tailscale
 
+[← Portfolio overview](../../README.md)
+
 **Two sites · Subnet routing · Cross-site access · Independent fallback devices**
 
-A practical networking project connecting two homelab locations approximately 50 km apart.
+A practical networking project connecting two separate homelab locations.
 
 The setup provides remote access to servers, network devices and selected services. Each site also has an independent Tailscale device that can maintain network access when its primary Proxmox host is unavailable.
 
@@ -16,7 +18,7 @@ The setup provides remote access to servers, network devices and selected servic
 | Fallback implementation | Tailscale on Fire TV Stick | Tailscale in Docker |
 | Fallback verification | Actual NAB9 outage | HP Omen deliberately shut down |
 
-**Status:** Operational. Both alternative access paths have been verified in practice.
+**Status:** Operational. Automatic fallback to the independent subnet router was observed at both sites without manual route changes.
 
 ---
 
@@ -26,7 +28,7 @@ Before adopting Tailscale, I used a WireGuard connection through my FRITZ!Box fo
 
 I later switched to Tailscale because I wanted more flexibility in how I made individual devices and services accessible. Initially, I used it primarily to reach Home Assistant and administer services while away from home.
 
-When I added a Minisforum NAB9 at a second location, approximately 50 km away, I needed a way to access devices at the new site from my existing Home Assistant installation.
+When I added a Minisforum NAB9 at a second location, I needed a way to access devices at the new site from my existing Home Assistant installation.
 
 I started with targeted access to a solar battery system and a smart meter.
 
@@ -42,7 +44,7 @@ What began as remote access to individual services gradually developed into a mu
 
 ## 2. Architecture
 
-The two sites use separate local networks connected through Tailscale.
+The two sites use separate local networks. Tailscale subnet routing provides the access paths described below. The documented tests cover remote administration and cross-site SMB access; other traffic paths have not yet been documented.
 
 ### Site A — NAB9 network
 
@@ -62,7 +64,7 @@ The two sites use separate local networks connected through Tailscale.
 | Raspberry Pi | Independent alternative Tailscale access path |
 | SMB storage shares | Used for cross-site media access |
 
-**Architecture note:** The fallback devices operate independently of their respective Proxmox hosts. They are additional access paths, not components hosted on the servers.
+**Architecture note:** The fallback devices operate independently of their respective Proxmox hosts. At each site, the primary and alternative subnet router advertise the same /24 route; the two sites use different prefixes. During the NAB9 power supply failure and the deliberate HP Omen shutdown, access to the respective site remained available without manual route changes.
 
 ---
 
@@ -169,7 +171,15 @@ It also showed the limits of remote access: an alternative network connection ca
 
 ---
 
-## 7. Current Status & Next Steps
+## 7. Verified Failover and Open Tests
+
+Both subnet routers at each site advertise the same /24 route. The alternative device maintained network access automatically when the corresponding Proxmox host became unavailable: once during the unexpected NAB9 power supply failure and once when the HP Omen was deliberately shut down. No manual route change was required in either test.
+
+The tested access paths are remote administration and cross-site SMB storage access. Initiating connections from ordinary devices without Tailscale in both directions has not yet been documented. A route overview can be added later using anonymized example networks.
+
+---
+
+## 8. Current Status & Next Steps
 
 **Implemented and verified**
 

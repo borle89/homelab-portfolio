@@ -1,5 +1,7 @@
 # Identity & Secure Remote Access
 
+[← Portfolio overview](../../README.md)
+
 ## Overview
 
 This project explores the integration of Authentik and Pangolin in my personal homelab, with a focus on centralized authentication, remote access, and troubleshooting across multiple infrastructure components.
@@ -24,7 +26,7 @@ The main goals are to:
 - Apply my existing DNS, TLS, and reverse proxy experience to a different access architecture.
 - Investigate how external access to self-hosted services can be managed more deliberately.
 - Prepare to move the public access layer away from the homelab.
-- Reduce the need for inbound port forwarding on my home router for the planned access path.
+- Avoid opening inbound web ports at the NAB9 site when publishing applications through the planned VPS entry point.
 
 The intended design should allow users to access selected applications through public domains without connecting directly to my home internet connection.
 
@@ -34,22 +36,28 @@ This is an architectural goal, not a claim that the home IP address would be inv
 
 My homelab currently spans two physical locations connected through Tailscale. During the transition to the newer NAB9 host, public inbound traffic still enters through the original network.
 
-The current external access path to Pangolin is:
+The current test access path to Pangolin is:
 
-**Internet → Cloudflare → Nginx Proxy Manager at the original site → Tailscale connection → Pangolin/Traefik on the NAB9**
+**Public domain → Nginx Proxy Manager at the original site → Tailscale connection → Pangolin or Authentik on the NAB9**
+
+Nginx Proxy Manager is the current public-facing reverse proxy. It manages the Let's Encrypt certificates used for the published subdomains. For this test, it forwards Pangolin requests over HTTPS to port 443 of the Pangolin container, where Traefik listens; its Authentik proxy host also uses HTTPS on port 443. Cloudflare hosts the DNS records. Specific subdomain A records point to the original site's public IP address; a wildcard A record has also been used, but whether it is still present needs to be checked. Whether the records use Cloudflare's HTTP proxy is also unverified. If the HTTP proxy is enabled, Cloudflare is an additional hop before Nginx Proxy Manager.
+
+This connection is used to test access and authentication, not as the permanent access setup. Traefik was configured in the Pangolin container and obtained a valid certificate. A separate Pangolin and Traefik deployment on a VPS is planned; Nginx Proxy Manager remains the current public-facing proxy at the original site.
 
 Authentik also runs on the NAB9 and handles authentication for Pangolin.
 
 | Component | Current role |
 |---|---|
 | Authentik | Identity provider for Pangolin |
-| Pangolin | Publicly reachable remote-access platform under evaluation |
-| Traefik | Reverse proxy component associated with the Pangolin deployment |
-| Nginx Proxy Manager | Existing public-facing reverse proxy at the original site |
+| Pangolin | Publicly reachable for access and authentication tests |
+| Traefik | Listens on port 443 in the Pangolin container; valid certificate obtained for the test setup |
+| Nginx Proxy Manager | Public-facing reverse proxy, routing and Let's Encrypt certificates at the original site |
 | Tailscale | Private connection between the two homelab locations |
-| Cloudflare | Part of the public domain access and certificate-validation setup |
+| Cloudflare | DNS management and DNS-01 validation; HTTP proxy status to be verified |
 
 This is a transitional architecture. Pangolin is not yet configured to publish and protect my other homelab services.
+
+The successful external login test confirms this access and authentication flow. It does not establish that this temporary path will be reused for the planned VPS deployment.
 
 For the wider two-site network design and alternative access paths, see the [Multi-Site Tailscale project](../multi-site-tailscale/README.md).
 
@@ -102,6 +110,8 @@ DNS resolution problems interfered with reliable access to external resources re
 
 The resolver configuration was changed to use external DNS resolvers.
 
+While preparing Pangolin/Traefik wildcard routing, I changed the wildcard DNS record from CNAME to A. This describes the configuration decision; it does not imply that DNS-01 generally requires A records. Whether the wildcard A record is still active needs to be checked.
+
 This was not my first experience configuring DNS. The lesson was how resolver selection inside one component could affect a larger application deployment.
 
 ### Fixing TLS certificate issuance
@@ -112,7 +122,7 @@ HTTP-01 certificate validation did not work reliably in the existing Cloudflare 
 
 A missing or empty Cloudflare DNS API token in the service configuration also had to be corrected.
 
-After these changes, Traefik obtained a valid Let's Encrypt certificate.
+After these changes, Traefik obtained a valid Let's Encrypt certificate in the test setup. This did not replace Nginx Proxy Manager as the productive public-facing proxy.
 
 I had worked with HTTPS and certificates before this project. The new challenge was adapting certificate issuance to this particular combination of Cloudflare, Traefik, and the transitional proxy architecture.
 
@@ -120,7 +130,7 @@ I had worked with HTTPS and certificates before this project. The new challenge 
 
 During setup, the public access path intermittently returned HTTP 504 errors even though individual internal components responded.
 
-Troubleshooting required checking the route across Cloudflare, Nginx Proxy Manager, the inter-site connection, Pangolin/Traefik, and Authentik rather than relying on a single internal connectivity test.
+Troubleshooting required checking public DNS and, if enabled, Cloudflare's HTTP proxy, then Nginx Proxy Manager, the inter-site connection, Traefik in the Pangolin container and Authentik rather than relying on a single internal connectivity test.
 
 The later successful external login demonstrates that the complete access path works for the tested authentication scenario. It is not a claim of continuously measured availability.
 
@@ -136,15 +146,17 @@ The current result is verified: opening Pangolin through its public domain redir
 
 The current Pangolin deployment on the NAB9 is a learning and transitional setup, not the intended permanent hosting arrangement.
 
-The long-term goal is to separate the public access layer from the homelab by moving the relevant components to external VPS infrastructure.
+The long-term goal is to separate the public access layer from the homelab by moving Pangolin and Traefik to VPS infrastructure. Nginx Proxy Manager currently remains productive at the original site, where inbound web ports are already open. I am deferring the switch rather than opening inbound web ports at the newer NAB9 site. Once the VPS-based access path has been configured and tested, Traefik is intended to replace Nginx Proxy Manager as the productive reverse proxy.
 
 ### Intended access path
 
-**User → public domain / Cloudflare → Pangolin and Traefik on VPS infrastructure → Tailscale → selected homelab application**
+**User → public domain → Pangolin and Traefik on VPS infrastructure → Tailscale → selected homelab application**
+
+Cloudflare will provide DNS for the planned public domain. Whether its HTTP proxy will be enabled is still an open design choice.
 
 Authentik is also intended to run externally and provide authentication for the access platform.
 
-Cloudflare remains part of the planned public access path. The VPS infrastructure would provide the public-facing entry point, while Tailscale would connect it to the homelab without requiring inbound web port forwarding on the home router for this access path.
+The VPS would provide the public-facing entry point. Tailscale is the planned private connection from the VPS to the homelab, so published applications would not require inbound web ports at the NAB9 site. Once the public entry point moves, its DNS records will need to be updated to direct visitors to the VPS rather than the original home site.
 
 The intention is to avoid exposing the home internet connection directly to visitors of the published applications and to reduce unnecessary public exposure of the home IP address.
 
@@ -155,19 +167,17 @@ This does not guarantee complete IP-address anonymity. The VPS provider and rele
 The following decisions have not yet been finalized:
 
 - Whether Authentik and Pangolin will share a VPS or run on separate external systems.
-- The exact deployment and routing design for the VPS-based architecture.
+- The exact Tailscale routing and Pangolin site configuration that will let Traefik reach selected homelab applications from the VPS.
 - Which homelab applications will be published through Pangolin.
 - Which access controls and validation procedures will be required before the new architecture replaces the current setup.
 
-The existing Nginx Proxy Manager arrangement is intended to be replaced, but it remains part of the current deployment.
-
 ### Independent monitoring and alerting
 
-I also intend to introduce externally hosted monitoring and alerting.
+I also intend to run independent monitoring and alerting on VPS infrastructure. A tool there could use Tailscale to check selected services inside the homelab; Uptime Kuma is a candidate.
 
 The purpose is to retain an independent way to detect and report outages, including a complete power or internet outage at home.
 
-Uptime Kuma is one possible solution, but the monitoring product has not been selected. The exact hosting arrangement is also still open.
+The monitoring product and its precise deployment have not yet been selected.
 
 External monitoring and alerting are planned, not implemented as part of this project.
 
@@ -178,13 +188,14 @@ External monitoring and alerting are planned, not implemented as part of this pr
 | Existing experience with DNS, HTTPS, TLS, and reverse proxies | Established before this project |
 | Authentik deployed on the NAB9 | Implemented |
 | Pangolin deployed on the NAB9 | Implemented |
+| Traefik prepared with a valid test certificate | Tested; not the productive public proxy |
 | Pangolin reachable through a public domain | Tested |
 | External Authentik login and return to Pangolin | Tested |
 | Other homelab applications published and protected through Pangolin | Planned |
 | Replacement of the existing Nginx Proxy Manager setup | Planned |
-| Pangolin and Authentik hosted externally | Planned; VPS allocation undecided |
-| VPS-to-homelab access through Tailscale | Planned |
-| External monitoring and alerting | Planned; product not selected |
+| Pangolin, Traefik and Authentik hosted externally | Planned; VPS allocation undecided |
+| Private VPS-to-homelab access through Tailscale | Planned; routing not yet implemented on VPS |
+| VPS-based monitoring through Tailscale | Planned; product not selected |
 
 ## Key Takeaway
 
@@ -192,4 +203,4 @@ This project extends my existing experience with DNS, HTTPS, certificates, and r
 
 The central learning experience has been understanding and troubleshooting the complete authentication path: an available application, correct DNS resolution, valid TLS certificates, working proxy routing, and a successful OIDC login are separate requirements that need to be verified individually.
 
-The result so far is a working, externally tested Authentik login for Pangolin. The next architectural step is to move the public access and identity components onto external VPS infrastructure while retaining Cloudflare and using Tailscale for private connectivity to the homelab.
+The result so far is a working, externally tested Authentik login for Pangolin. The next architectural step is to move the public access and identity components onto VPS infrastructure, retain Cloudflare for DNS and establish Tailscale connectivity to the homelab for selected services and future monitoring.

@@ -43,7 +43,7 @@ Connected two local networks using Tailscale subnet routing to provide cross-sit
 
 Each site also has an independent alternative Tailscale access device. The Fire TV Stick provided access during an actual NAB9 outage, while the Raspberry Pi path was verified by deliberately shutting down the HP Omen.
 
-**Status:** Operational. Cross-site access and both alternative access paths have been tested in practice.
+**Status:** Operational. Cross-site SMB access and automatic Tailscale fallback have been tested at both sites: during an actual NAB9 outage and a deliberate HP Omen shutdown.
 
 **Technologies:** Tailscale · Linux · subnet routing · IP networking · SMB/CIFS · hardware troubleshooting
 
@@ -53,7 +53,7 @@ Each site also has an independent alternative Tailscale access device. The Fire 
 
 Deployed Authentik and Pangolin in separate virtualized environments and integrated them using OpenID Connect (OIDC).
 
-Troubleshooting covered reverse proxy routing, DNS resolution, Cloudflare DNS-01 certificate validation and the authentication flow. Pangolin is publicly reachable, and the Authentik login and return flow has been tested from outside the homelab networks.
+Troubleshooting covered reverse proxy routing, DNS resolution, certificate validation during Traefik setup and the authentication flow. Nginx Proxy Manager remains the public-facing proxy. Pangolin is publicly reachable, and the Authentik login and return flow has been tested from outside the homelab networks.
 
 **Status:** Initial integration tested. Extending the access architecture to additional homelab services and external VPS infrastructure is planned.
 

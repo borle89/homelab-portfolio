@@ -1,5 +1,7 @@
 # Proxmox Homelab & Service Migration
 
+[← Portfolio overview](../../README.md)
+
 ## Overview
 
 This project documents the evolution of my personal homelab from a laptop-based Proxmox environment to a more capable mini-PC platform.
@@ -40,7 +42,7 @@ The environment currently spans two physical locations connected through Tailsca
 
 On the NAB9, Proxmox hosts both virtual machines and LXC containers. Docker runs inside a dedicated virtual machine, providing a separate environment for Compose-based applications.
 
-A 1 TB SSD connected to the NAB9 via USB is used as the destination for scheduled Proxmox backups. This is a local backup arrangement, separate from the planned Proxmox Backup Server deployment. A restore has not yet been tested.
+A 1 TB SSD connected to the NAB9 via USB is used as the destination for scheduled Proxmox backups. A scheduled backup job has completed successfully. This is a local backup arrangement, separate from the planned Proxmox Backup Server deployment. A restore has not yet been tested.
 
 This is an incremental transition, not a completed replacement of the original host. Both systems remain relevant while workloads and storage are moved.
 
@@ -102,7 +104,7 @@ The original HP Omen environment remains available while the new host is built a
 
 Jellyfin has been installed on the NAB9 and tested against media storage still located at the original site. The connection uses the existing Tailscale link and an SMB share.
 
-Movie playback was successfully tested. In one test, I played a 4K film at a selected playback resolution of 720p. Jellyfin reported a transcoding speed of 188 fps during that session. This is a transcoding throughput reading, not the playback frame rate; the figure alone does not confirm whether Intel hardware acceleration was active.
+Movie playback was successfully tested. In one test, I played a 4K film at a selected playback resolution of 720p. Jellyfin reported a transcoding speed of 188 fps during that session. This is a transcoding throughput reading, not the playback frame rate; the figure alone does not confirm whether Intel hardware acceleration was active. A repeat test with the Intel video-engine activity or the matching FFmpeg log is still needed to verify hardware acceleration.
 
 This demonstrates a working cross-site access path for that scenario, but it does not establish that every Jellyfin feature, media format, or failure scenario has been validated.
 
@@ -154,7 +156,7 @@ The next project milestones are:
 2. Move the remaining required services and their persistent data.
 3. Relocate the existing media drives while preserving their data.
 4. Validate migrated applications and their dependencies.
-5. Implement the planned backup environment and perform restore tests.
+5. Monitor subsequent local backup jobs, implement the planned backup environment and perform restore tests.
 6. Retire the HP Omen from its primary infrastructure role.
 
 ## Key Takeaway
