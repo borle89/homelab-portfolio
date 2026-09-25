@@ -6,24 +6,22 @@ Hi, I'm Gregor. I'm building practical skills in Linux, networking, virtualizati
 
 My goal is to move into a professional IT infrastructure role and continue developing towards cloud infrastructure engineering.
 
-This repository documents selected projects, technical decisions, troubleshooting experiences and lessons learned. It focuses on work I have actually carried out, rather than presenting planned technologies as completed skills.
+This repository documents selected projects, technical decisions, troubleshooting experiences and lessons learned. It focuses on work I have actually carried out and distinguishes implemented or tested work from future plans.
 
 ---
 
 ## Homelab Overview
 
-My homelab spans two separate sites approximately 50 km apart.
+My homelab spans two separate sites.
 
 | Site | Device | Role |
 | --- | --- | --- |
-| **Site A — NAB9 network** | **Minisforum NAB9** | The newer main server, hosting virtual machines, LXC containers and infrastructure services. |
-| Site A | **Fire TV Stick** | Provides an alternative Tailscale access path if the NAB9 is unavailable. |
-| **Site B — HP Omen network** | **HP Omen Laptop** | My original Proxmox learning environment, which continues to host services and storage during the transition to the NAB9. |
-| Site B | **Raspberry Pi** | Runs smaller self-hosted services and provides an alternative Tailscale access path if the laptop is unavailable. It is also planned to become an independent monitoring device. |
+| **Site A — NAB9 network** | **Minisforum NAB9** | Main Proxmox host for virtual machines, LXC containers and infrastructure services. |
+| Site A | **Fire TV Stick** | Independent alternative Tailscale access path if the NAB9 is unavailable. |
+| **Site B — HP Omen network** | **HP Omen Laptop** | Original Proxmox host, still running services and storage during the migration. |
+| Site B | **Raspberry Pi** | Runs smaller self-hosted services and provides an independent alternative Tailscale access path. |
 
-The two sites are connected through Tailscale subnet routers, enabling cross-site access to devices and SMB storage shares.
-
-I use this environment to learn how infrastructure components work together, investigate failures and improve existing setups.
+The environment is used to explore how virtualization, networking, storage and self-hosted services interact, while providing practical experience with troubleshooting and infrastructure changes.
 
 ---
 
@@ -31,9 +29,9 @@ I use this environment to learn how infrastructure components work together, inv
 
 ### 01 · [Proxmox Homelab & Service Migration](projects/proxmox-homelab/README.md)
 
-Built Proxmox environments on a laptop and later on a dedicated Minisforum server. Created and configured virtual machines and LXC containers, allocated resources, configured storage and set up scheduled backups.
+Built Proxmox environments on an HP Omen laptop and later on a dedicated Minisforum NAB9. The project covers virtual machines, LXC containers, storage, scheduled local Proxmox backups and the staged migration of services and data between the two systems.
 
-The transition between the two systems is ongoing. It includes preparing services on the new server while existing applications and data remain available on the original system.
+**Status:** Migration in progress. Both Proxmox hosts remain in use while workloads and storage are moved and validated. A backup restore has not yet been tested.
 
 **Technologies:** Proxmox VE · Linux · virtual machines · LXC · storage · SMB/CIFS · backups
 
@@ -41,20 +39,11 @@ The transition between the two systems is ongoing. It includes preparing service
 
 ### 02 · [Multi-Site Networking with Tailscale](projects/multi-site-tailscale/README.md)
 
-Connected two local networks approximately 50 km apart using Tailscale subnet routers.
+Connected two local networks using Tailscale subnet routing to provide cross-site access to selected devices, services and SMB storage.
 
-Each network has a primary subnet router and an additional device providing an alternative access path:
+Each site also has an independent alternative Tailscale access device. The Fire TV Stick provided access during an actual NAB9 outage, while the Raspberry Pi path was verified by deliberately shutting down the HP Omen.
 
-| Network | Primary subnet router | Alternative access path |
-| --- | --- | --- |
-| **Site A — NAB9 network** | Tailscale LXC on the Minisforum NAB9 | Fire TV Stick |
-| **Site B — HP Omen network** | Tailscale container on the Proxmox laptop | Raspberry Pi |
-
-The setup enables cross-site access to devices and SMB storage shares.
-
-> **Real-world troubleshooting:** When the NAB9 became unreachable due to a failed power supply, the Fire TV Stick maintained access to the local network. This helped isolate the issue to the server rather than the entire site connection. On-site troubleshooting and a multimeter measurement identified the faulty power supply.
-
-The Fire TV Stick required an additional application to remain awake and available as a subnet router.
+**Status:** Operational. Cross-site access and both alternative access paths have been tested in practice.
 
 **Technologies:** Tailscale · Linux · subnet routing · IP networking · SMB/CIFS · hardware troubleshooting
 
@@ -62,11 +51,11 @@ The Fire TV Stick required an additional application to remain awake and availab
 
 ### 03 · [Identity & Secure Access](projects/identity-secure-access/README.md)
 
-Deployed Authentik and Pangolin in separate virtualized environments and configured Authentik for use with Pangolin.
+Deployed Authentik and Pangolin in separate virtualized environments and integrated them using OpenID Connect (OIDC).
 
-Troubleshooting involved reverse proxy routing, DNS resolution, Cloudflare DNS-01 certificate validation and OIDC configuration. The initial deployment and service installation were carried out independently; I used AI assistance while learning the identity and access configuration.
+Troubleshooting covered reverse proxy routing, DNS resolution, Cloudflare DNS-01 certificate validation and the authentication flow. Pangolin is publicly reachable, and the Authentik login and return flow has been tested from outside the homelab networks.
 
-Authentik currently serves Pangolin. Extending it to additional homelab services is planned.
+**Status:** Initial integration tested. Extending the access architecture to additional homelab services and external VPS infrastructure is planned.
 
 **Technologies:** Authentik · Pangolin · Traefik · Cloudflare · DNS · TLS · OIDC
 
@@ -76,18 +65,20 @@ Authentik currently serves Pangolin. Extending it to additional homelab services
 
 | Area | Experience |
 | --- | --- |
-| **Docker and Docker Compose** | Running and managing self-hosted services in a Debian virtual machine. |
-| **Jellyfin** | Configured an LXC container, tested Intel hardware transcoding and accessed media through a cross-site SMB share. |
+| **Docker and Docker Compose** | Running and managing self-hosted services in a dedicated Debian virtual machine. |
+| **Jellyfin** | Configured an LXC container and tested 4K-to-720p transcoding with media accessed through a cross-site SMB share. Jellyfin reported 188 fps during the test; this reading alone does not verify hardware acceleration. |
 | **Home Assistant** | Operating an existing smart home installation and preparing a separate environment for a future rebuild. |
 | **Nextcloud AIO** | Installed a test deployment using the project's documentation to evaluate it for personal use. |
-| **Raspberry Pi** | Running a Tailscale fallback subnet router and smaller self-hosted services. A future role as an independent monitoring and management device is planned. |
+| **Raspberry Pi** | Running smaller self-hosted services and an independent Tailscale access path. |
 
 ---
 
 ## Current Focus
 
-I am continuing to develop my Linux administration, networking and infrastructure skills while documenting selected homelab projects. My longer-term learning path includes automation, cloud infrastructure and related engineering practices.
+I am continuing to develop my Linux administration, networking and infrastructure skills while documenting selected homelab projects.
 
-I am also planning a network infrastructure upgrade focused on network segmentation, faster internal connectivity and centralized network management. The design and implementation will be documented as a separate project.
+Current work includes completing the staged migration to the NAB9 and preparing a network infrastructure upgrade focused on segmentation, faster internal connectivity and centralized management.
 
-This portfolio is a work in progress. Project pages will be expanded with architecture explanations, implementation details and troubleshooting notes as they are reviewed and documented.
+My longer-term learning path includes infrastructure automation, cloud infrastructure and related engineering practices.
+
+This portfolio is a work in progress. Project pages are expanded as implementations, tests and troubleshooting experiences are reviewed and documented.
